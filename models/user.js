@@ -12,24 +12,6 @@ const userSchema = new mongoose.Schema({
     // required: true, // обязательное поле
     minlength: 2, // минимальная длина строки
     maxlength: 30, // максимальная длина строки
-    default: 'Жак-Ив Кусто', // Значение по умолчанию для name
-  },
-  about: {
-    type: String,
-    // required: true,
-    minlength: 2,
-    maxlength: 30,
-    default: 'Исследователь',
-  },
-  avatar: {
-    type: String,
-    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    validate: {
-      validator: (string) => {
-        validator.isURL(string);
-      },
-      message: 'Неправильный формат ссылки на аватар',
-    },
   },
   email: {
     type: String,
@@ -141,4 +123,3 @@ module.exports = mongoose.model('user', userSchema);
 // };
 
 // module.exports = mongoose.model('user', userSchema);
-

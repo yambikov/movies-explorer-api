@@ -33,7 +33,6 @@ mongoose.connect(MONGODB_URI, {
 
 const app = express();
 
-
 // app.use(cors());
 app.use(cors({
   origin: '*',
