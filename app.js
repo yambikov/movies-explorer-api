@@ -55,7 +55,7 @@ app.use('/signup', validateCreateUser, createUser);
 
 app.use(isAuthorized);
 app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
+app.use('/movies', require('./routes/movies'));
 
 app.use('/*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));

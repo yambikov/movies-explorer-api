@@ -1,15 +1,45 @@
 // controllers/cards.js
 
 // const http2 = require('http2');
-const CardModel = require('../models/card');
+const MovieModel = require('../models/movie');
 
 const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundErr');
 const ForbiddenError = require('../errors/ForbiddenError');
 
-const createCard = (req, res, next) => {
-  const { name, link } = req.body;
-  return CardModel.create({ name, link, owner: req.user.id })
+const createMovie = (req, res, next) => {
+  const {
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    thumbnail,
+    movieId,
+    nameRU,
+    nameEN,
+  } = req.body;
+  console.log(req.user.id);
+  // const { name, link } = req.body;
+  // return MovieModel.create({ name, link, owner: req.user.id })
+  return MovieModel.create(
+    {
+      country,
+      director,
+      duration,
+      year,
+      description,
+      image,
+      trailerLink,
+      thumbnail,
+      owner: req.user.id,
+      movieId,
+      nameRU,
+      nameEN,
+    },
+  )
     .then((data) => {
       // res.status(http2.constants.HTTP_STATUS_CREATED).send(data);
       res.status(200).send(data);
@@ -22,34 +52,34 @@ const createCard = (req, res, next) => {
     });
 };
 
-const getCards = (req, res, next) => {
-  CardModel.find()
+const getMovies = (req, res, next) => {
+  MovieModel.find()
     .then((data) => {
       res.status(200).send(data);
     })
     .catch(next);
 };
 
-const deleteCard = async (req, res, next) => {
-  const { cardId } = req.params;
-  console.log('deleteCard_CONTROLLER');
+const deleteMovie = async (req, res, next) => {
+  const { movieId } = req.params;
+  console.log('deleteMovie_CONTROLLER');
 
   try {
-    const card = await CardModel.findById(cardId).orFail();
+    const movie = await MovieModel.findById(movieId).orFail();
 
     // Проверка владельца карточки
-    if (card.owner.toString() !== req.user.id) {
-      return next(new ForbiddenError('У вас нет прав для удаления этой карточки'));
+    if (movie.owner.toString() !== req.user.id) {
+      return next(new ForbiddenError('У вас нет прав для удаления этого фильма'));
     }
 
     // Удаление карточки с использованием findByIdAndDelete
-    const deletedCard = await CardModel.findByIdAndDelete(cardId);
+    const deletedMovie = await MovieModel.findByIdAndDelete(movieId);
 
     // Если запрос вернул данные, отправляем успешный ответ
-    return res.status(200).send(deletedCard);
+    return res.status(200).send(deletedMovie);
   } catch (err) {
     if (err.name === 'DocumentNotFoundError') {
-      return next(new NotFoundError('Карточка по указанному _id не найдена'));
+      return next(new NotFoundError('Фильм по указанному _id не найден'));
     } if (err.name === 'CastError') {
       return next(new ValidationError('Переданы некорректные данные'));
     }
@@ -104,9 +134,9 @@ const deleteCard = async (req, res, next) => {
 // };
 
 module.exports = {
-  createCard,
-  getCards,
-  deleteCard,
+  createCard: createMovie,
+  getCards: getMovies,
+  deleteCard: deleteMovie,
   // addCardLike,
   // removeCardLike,
 };
