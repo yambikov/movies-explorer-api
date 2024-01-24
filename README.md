@@ -1,2 +1,2 @@
 # movies-explorer-api
-Учебный проект
+Учебный
