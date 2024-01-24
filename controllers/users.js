@@ -14,15 +14,16 @@ const HASH_SALT_ROUNDS = 10;
 
 const createUser = (req, res, next) => {
   const {
-    name, about, avatar, email, password,
+    // name, about, avatar, email, password,
+    name, email, password,
   } = req.body;
   console.log('REGISTER CONTROLLER');
   return bcrypt
     .hash(password, HASH_SALT_ROUNDS)
     .then((hashedPassword) => userModel.create({
       name,
-      about,
-      avatar,
+      // about,
+      // avatar,
       email,
       password: hashedPassword,
     }))
@@ -82,12 +83,12 @@ const login = (req, res, next) => {
 // };
 
 const updateUser = (req, res, next) => {
-  const { name, about } = req.body;
+  const { name, email } = req.body;
   console.log('updateUser_CONTROLLER');
   userModel
     .findByIdAndUpdate(
       req.user.id,
-      { name, about },
+      { name, email },
       {
         new: true, // обработчик then получит на вход обновлённую запись
         runValidators: true, // данные будут валидированы перед изменением
