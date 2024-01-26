@@ -20,7 +20,7 @@ const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundErr');
 
 const {
-  PORT, MONGODB_URI,
+  PORT, MONGODB_URI, NODE_ENV,
 } = process.env;
 
 // const {
@@ -33,11 +33,17 @@ const {
 //   MONGODB_URI = 'mongodb://localhost:27017/bitfilmsdb',
 // } = process.env;
 
-mongoose.connect(MONGODB_URI, {
+mongoose.connect(NODE_ENV === 'production' ? MONGODB_URI : 'mongodb://127.0.0.1:27017/bitfilmsdb', {
   useNewUrlParser: true,
 }).then(() => {
   console.log('Подключено к MongoDB');
 });
+
+// mongoose.connect(MONGODB_URI, {
+//   useNewUrlParser: true,
+// }).then(() => {
+//   console.log('Подключено к MongoDB');
+// });
 
 const app = express();
 
