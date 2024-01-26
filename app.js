@@ -20,8 +20,12 @@ const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundErr');
 
 const {
-  PORT = 3000, MONGODB_URI = 'mongodb://127.0.0.1:27017/bitfilmsdb',
+  PORT, MONGODB_URI,
 } = process.env;
+
+// const {
+//   PORT = 3000, MONGODB_URI = 'mongodb://127.0.0.1:27017/bitfilmsdb',
+// } = process.env;
 
 // const {
 //   PORT = 3000,
