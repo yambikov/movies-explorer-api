@@ -20,13 +20,13 @@ const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFoundErr');
 
 const {
-  PORT, MONGODB_URI,
+  PORT = 3000, MONGODB_URI = 'mongodb://localhost:27017/bitfilmsdb',
 } = process.env;
 
 // const {
 //   PORT = 3000,
 //   // MONGODB_URI = 'mongodb://127.0.0.1:27017/mestodb',
-//   MONGODB_URI = 'mongodb://127.0.0.1:27017/bitfilmsdb',
+//   MONGODB_URI = 'mongodb://localhost:27017/bitfilmsdb',
 // } = process.env;
 
 mongoose.connect(MONGODB_URI, {
