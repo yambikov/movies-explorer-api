@@ -2,9 +2,11 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv'); // Импортируем dotenv
+const dotenv = require('dotenv');
+const helmet = require('helmet');
 const { errors } = require('celebrate');
 const cors = require('cors');
+const rateLimiter = require('./middlewares/rateLimiter');
 const errorHandler = require('./middlewares/errorHandler');
 const {
   validateCreateUser,
@@ -23,29 +25,16 @@ const {
   PORT, MONGODB_URI, NODE_ENV,
 } = process.env;
 
-// const {
-//   PORT = 3000, MONGODB_URI = 'mongodb://127.0.0.1:27017/bitfilmsdb',
-// } = process.env;
-
-// const {
-//   PORT = 3000,
-//   // MONGODB_URI = 'mongodb://127.0.0.1:27017/mestodb',
-//   MONGODB_URI = 'mongodb://localhost:27017/bitfilmsdb',
-// } = process.env;
-
 mongoose.connect(NODE_ENV === 'production' ? MONGODB_URI : 'mongodb://127.0.0.1:27017/bitfilmsdb', {
   useNewUrlParser: true,
 }).then(() => {
   console.log('Подключено к MongoDB');
 });
 
-// mongoose.connect(MONGODB_URI, {
-//   useNewUrlParser: true,
-// }).then(() => {
-//   console.log('Подключено к MongoDB');
-// });
-
 const app = express();
+
+app.use(helmet());
+app.use(rateLimiter);
 
 // app.use(cors());
 app.use(cors({
@@ -87,4 +76,20 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Пример приложения слушает порт ${PORT}`);
 });
-//
+
+/*
+// mongoose.connect(MONGODB_URI, {
+//   useNewUrlParser: true,
+// }).then(() => {
+//   console.log('Подключено к MongoDB');
+// });
+// const {
+//   PORT = 3000, MONGODB_URI = 'mongodb://127.0.0.1:27017/bitfilmsdb',
+// } = process.env;
+
+// const {
+//   PORT = 3000,
+//   // MONGODB_URI = 'mongodb://127.0.0.1:27017/mestodb',
+//   MONGODB_URI = 'mongodb://localhost:27017/bitfilmsdb',
+// } = process.env;
+*/

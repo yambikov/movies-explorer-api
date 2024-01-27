@@ -1,3 +1,3 @@
 # movies-explorer-api
 Учебный проект
-Backend: api.yambikov-diploma.nomoredomainsmonster.ru
+API-сервер: https://api.yambikov-diploma.nomoredomainsmonster.ru/

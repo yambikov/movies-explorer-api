@@ -13,22 +13,16 @@ const MONGO_DUPLICATE_ERROR_CODE = 11000;
 const HASH_SALT_ROUNDS = 10;
 
 const createUser = (req, res, next) => {
-  const {
-    // name, about, avatar, email, password,
-    name, email, password,
-  } = req.body;
+  const { name, email, password } = req.body;
   console.log('REGISTER CONTROLLER');
-  return bcrypt
+  bcrypt
     .hash(password, HASH_SALT_ROUNDS)
     .then((hashedPassword) => userModel.create({
       name,
-      // about,
-      // avatar,
       email,
       password: hashedPassword,
     }))
     .then((user) => {
-      // Избегаем возврата пароля в ответе
       const userWithoutPassword = user.toObject();
       delete userWithoutPassword.password;
       res.status(200).send(userWithoutPassword);
@@ -36,6 +30,9 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
         return next(new ConflictError('Пользователь уже существует'));
+      }
+      if (err.name === 'ValidationError') {
+        return next(new ValidationError('Переданы некорректные данные при создании пользователя'));
       }
       return next(err); // Передаем ошибку дальше для централизованной обработки
     });
@@ -57,54 +54,106 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-// function getUsers(req, res, next) {
-//   console.log('getUsers_CONTROLLER');
-//   userModel
-//     .find()
-//     .then((data) => {
-//       res.status(http2.constants.HTTP_STATUS_OK).send(data);
-//     })
-//     .catch(next);
-// }
-
-// const getUserById = (req, res, next) => {
-//   const { userId } = req.params;
-//   console.log('getUserById CONTROLLER');
-//   userModel
-//     .findById(userId)
-//     .then((data) => {
-//       if (!data) {
-//         throw new NotFoundError('Пользователь не найден');
-//       }
-//       return res.status(http2.constants.HTTP_STATUS_OK).send(data);
-//     })
-
-//     .catch(next);
-// };
-
 const updateUser = (req, res, next) => {
   const { name, email } = req.body;
-  console.log('updateUser_CONTROLLER');
   userModel
     .findByIdAndUpdate(
       req.user.id,
       { name, email },
-      {
-        new: true, // обработчик then получит на вход обновлённую запись
-        runValidators: true, // данные будут валидированы перед изменением
-      },
+      { new: true, runValidators: true },
     )
-
     .then((data) => {
+      if (!data) {
+        throw new NotFoundError('Пользователь не найден');
+      }
       res.status(http2.constants.HTTP_STATUS_OK).send(data);
     })
     .catch((err) => {
+      if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+        return next(new ConflictError('Пользователь с таким email уже существует'));
+      }
       if (err.name === 'ValidationError') {
-        return next(new ValidationError('Переданы некорректные данные'));
+        return next(new ValidationError('Переданы некорректные данные при обновлении пользователя'));
+      }
+      if (err.name === 'CastError') {
+        return next(new ValidationError('Некорректный формат ID пользователя'));
       }
       return next(err);
     });
 };
+
+const getCurrentUser = (req, res, next) => {
+  const userId = req.user.id; // Получаем id из аутентифицированного пользователя в объекте запроса
+  userModel
+    .findById(userId)
+    .then((data) => {
+      if (!data) {
+        throw new NotFoundError('Пользователь не найден');
+      }
+      return res.status(http2.constants.HTTP_STATUS_OK).send(data);
+    })
+    .catch(next);
+};
+
+module.exports = {
+  createUser,
+  login,
+  updateUser,
+  getCurrentUser,
+};
+
+/*
+// const createUser = (req, res, next) => {
+//   const {
+//     // name, about, avatar, email, password,
+//     name, email, password,
+//   } = req.body;
+//   console.log('REGISTER CONTROLLER');
+//   return bcrypt
+//     .hash(password, HASH_SALT_ROUNDS)
+//     .then((hashedPassword) => userModel.create({
+//       name,
+//       // about,
+//       // avatar,
+//       email,
+//       password: hashedPassword,
+//     }))
+//     .then((user) => {
+//       // Избегаем возврата пароля в ответе
+//       const userWithoutPassword = user.toObject();
+//       delete userWithoutPassword.password;
+//       res.status(200).send(userWithoutPassword);
+//     })
+//     .catch((err) => {
+//       if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+//         return next(new ConflictError('Пользователь уже существует'));
+//       }
+//       return next(err); // Передаем ошибку дальше для централизованной обработки
+//     });
+// };
+// const updateUser = (req, res, next) => {
+//   const { name, email } = req.body;
+//   console.log('updateUser_CONTROLLER');
+//   userModel
+//     .findByIdAndUpdate(
+//       req.user.id,
+//       { name, email },
+//       {
+//         new: true, // обработчик then получит на вход обновлённую запись
+//         runValidators: true, // данные будут валидированы перед изменением
+//       },
+//     )
+
+//     .then((data) => {
+//       res.status(http2.constants.HTTP_STATUS_OK).send(data);
+//     })
+//     .catch((err) => {
+//       if (err.name === 'ValidationError') {
+//         return next(new ValidationError('Переданы некорректные данные'));
+//       }
+//       return next(err);
+//     });
+// };
 
 // const updateAvatar = (req, res, next) => {
 //   const { avatar } = req.body;
@@ -129,32 +178,33 @@ const updateUser = (req, res, next) => {
 //       return next(err);
 //     });
 // };
+// function getUsers(req, res, next) {
+//   console.log('getUsers_CONTROLLER');
+//   userModel
+//     .find()
+//     .then((data) => {
+//       res.status(http2.constants.HTTP_STATUS_OK).send(data);
+//     })
+//     .catch(next);
+// }
 
-const getCurrentUser = (req, res, next) => {
-  const userId = req.user.id; // Получаем id из аутентифицированного пользователя в объекте запроса
-  console.log('getCurrentUser_CONTROLLER');
-  console.log(req.user.id);
+// const getUserById = (req, res, next) => {
+//   const { userId } = req.params;
+//   console.log('getUserById CONTROLLER');
+//   userModel
+//     .findById(userId)
+//     .then((data) => {
+//       if (!data) {
+//         throw new NotFoundError('Пользователь не найден');
+//       }
+//       return res.status(http2.constants.HTTP_STATUS_OK).send(data);
+//     })
 
-  userModel
-    .findById(userId)
-    .then((data) => {
-      if (!data) {
-        throw new NotFoundError('Пользователь не найден');
-      }
-      return res.status(http2.constants.HTTP_STATUS_OK).send(data);
-    })
-    .catch(next);
-};
+//     .catch(next);
+// };
+*/
 
-module.exports = {
-  createUser,
-  login,
-  // getUsers,
-  // getUserById,
-  updateUser,
-  // updateAvatar,
-  getCurrentUser,
-};
+// OLD CODE
 
 // // controllers/users.js
 

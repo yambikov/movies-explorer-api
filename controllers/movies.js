@@ -52,8 +52,16 @@ const createMovie = (req, res, next) => {
     });
 };
 
+// const getMovies = (req, res, next) => {
+//   MovieModel.find()
+//     .then((data) => {
+//       res.status(200).send(data);
+//     })
+//     .catch(next);
+// };
+
 const getMovies = (req, res, next) => {
-  MovieModel.find()
+  MovieModel.find({ owner: req.user.id }) // Фильтрация по полю owner
     .then((data) => {
       res.status(200).send(data);
     })
@@ -62,7 +70,6 @@ const getMovies = (req, res, next) => {
 
 const deleteMovie = async (req, res, next) => {
   const { movieId } = req.params;
-  console.log('deleteMovie_CONTROLLER');
 
   try {
     const movie = await MovieModel.findById(movieId).orFail();
@@ -87,6 +94,13 @@ const deleteMovie = async (req, res, next) => {
   }
 };
 
+module.exports = {
+  createCard: createMovie,
+  getCards: getMovies,
+  deleteCard: deleteMovie,
+};
+
+/*
 // const addCardLike = (req, res, next) => {
 //   CardModel.findByIdAndUpdate(
 //     req.params.cardId,
@@ -132,14 +146,7 @@ const deleteMovie = async (req, res, next) => {
 //       return next(err);
 //     });
 // };
-
-module.exports = {
-  createCard: createMovie,
-  getCards: getMovies,
-  deleteCard: deleteMovie,
-  // addCardLike,
-  // removeCardLike,
-};
+*/
 
 // // controllers/cards.js
 
