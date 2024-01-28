@@ -67,8 +67,8 @@ app.use('/*', (req, res, next) => {
 // errorLogger нужно подключить после обработчиков роутов и до обработчиков ошибок
 app.use(errorLogger);
 
-// обработчики ошибок
-app.use(errors()); // обработчик ошибок celebrate
+// обработчик ошибок celebrate
+app.use(errors());
 
 // это обработчик ошибки
 app.use(errorHandler);
@@ -76,20 +76,3 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Пример приложения слушает порт ${PORT}`);
 });
-
-/*
-// mongoose.connect(MONGODB_URI, {
-//   useNewUrlParser: true,
-// }).then(() => {
-//   console.log('Подключено к MongoDB');
-// });
-// const {
-//   PORT = 3000, MONGODB_URI = 'mongodb://127.0.0.1:27017/bitfilmsdb',
-// } = process.env;
-
-// const {
-//   PORT = 3000,
-//   // MONGODB_URI = 'mongodb://127.0.0.1:27017/mestodb',
-//   MONGODB_URI = 'mongodb://localhost:27017/bitfilmsdb',
-// } = process.env;
-*/
